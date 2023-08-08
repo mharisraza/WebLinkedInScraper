@@ -1,0 +1,136 @@
+body {
+    font-family: monospace !important;
+    background: #F5F5F5 !important;
+}
+
+nav {
+    background: #0077B5;
+    border-bottom: rgba(0,0,0,0.08) !important;
+    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px; 
+}
+
+.nav-link {
+    color: black !important;
+}
+
+.text-primary {
+  color: #0077B5 !important;
+}
+
+.card {
+  border-radius: 25px !important;
+  border-bottom: 5px solid #0077B5 !important;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px !important;
+}
+
+.card-header {
+  background: #0077B5 !important;
+  color: white !important;
+}
+
+.modal {
+  border: none !important;
+}
+
+.modal-header {
+  background: #0077B5 !important;
+  color: white !important;
+}
+
+.btn-primary {
+    background: #0077B5 !important;
+    border: none !important;
+}
+
+.btn {
+    transition: transform 0.3s ease !important;
+}
+
+
+.btn:hover {
+    transform: translateY(-1px) !important; 
+}
+
+.connection-type-filters {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Hide the browser's default checkbox */
+  .connection-type-filters input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  /* Create a custom checkbox */
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+  }
+  
+  /* On mouse-over, add a grey background color */
+  .connection-type-filters:hover input ~ .checkmark {
+    background-color: #ccc;
+  }
+  
+  /* When the checkbox is checked, add a blue background */
+  .connection-type-filters input:checked ~ .checkmark {
+    background-color: #0077B5;
+  }
+  
+  /* Create the checkmark/indicator (hidden when not checked) */
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  /* Show the checkmark when checked */
+  .connection-type-filters input:checked ~ .checkmark:after {
+    display: block;
+  }
+  
+  /* Style the checkmark/indicator */
+  .connection-type-filters .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+
+.choices__list--multiple .choices__item {
+    background: #0077B5 !important;
+}
+
+.modal-body {
+  max-height: 700px !important;
+  overflow-y: auto !important;
+}
+
+ /* .modal-body {
+  white-space: break-word !important;
+} */
+
+
+
+

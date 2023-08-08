@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.css">
+
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <title>Linkedin Scraper</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="/">Linkedin Scraper</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" aria-current="page" href="/">
+                    <button class="btn btn-sm btn-light">Profile Scraper</button></a>
+                <a class="nav-link" href="/post-scraper">
+                    <button class="btn btn-sm btn-light">Post Scraper</button></a>
+            </div>  
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid mt-5">
+    <div class="text-end">
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#profile-scraper-modal">Open Profile Scraper</button>
+    </div>
+    <div class="text-start mb-3">
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" id="search-title-input" placeholder="Search by title" class="form-control" onkeyup="filterSearches()">
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header h5">Searches</div>
+        <div class="card-body">
+            <h1 id="no-searches-indicator" style="display: none;">There is no any searches.</h1>
+            <table class="table text-center" id="searches-table">
+                <thead>
+                  <tr>
+                    <th scope="col">#Id</th>
+                      <th scope="col">Search Title</th>
+
+                      <th scope="col">Searched at</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="profiles-searches-tbody">
+                </tbody>
+              </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="profile-scraper-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Profile Scraper</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h3>Get Started</h3>
+              <p>To get started please fill below fields and click on 'Start Scraper' button to start scraping profiles.</p>
+              <hr>
+              <form id="profile-scraper-form" class="row">
+                <span class="h6 text-primary">Please provide LinkedIn login credentials.</span>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
+                        <label for="email">Email address</label>
+                      </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="password" placeholder="Password" required>
+                        <label for="password">Password</label>
+                      </div>
+                </div>
+                <div class="col-md-12">
+                    <span class="text-primary">Total Profiles to Fetch. <i class="fas fa-circle-info" data-bs-toggle="tooltip" data-bs-title="Enter number of profiles to fetch ( -1 for as many as possible or available)." data-bs-placement="top"></i></span>
+                    <div class="form-floating mb-3">
+                        <input class="form-control" type="number" id="totalProfilesToFetch" placeholder="Total Profiles To Fetch">
+                        <label for="totalProfilesToFetch">Total Profiles to fetch</label>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <span class="text-primary">Keywords. <i class="fas fa-circle-info" data-bs-toggle="tooltip" data-bs-title="Keywords e.g. JavaScript, Java and so on" data-bs-placement="top"></i></span>
+                    <div class="form-floating mb-3">
+                        <input class="form-control" type="text" id="keywords" placeholder="Keywords">
+                        <label for="keywords">Keywords</label>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <span class="text-primary">Search Title <i class="fas fa-circle-info" data-bs-toggle="tooltip" data-bs-title="Give this search a title so it'll be easy-to-search" data-bs-placement="top"></i></span>
+                    <div class="form-floating mb-3">
+                        <input class="form-control" type="text" id="title" placeholder="Search title">
+                        <label for="keywords">Search title</label>
+                    </div>
+                </div>
+                
+                <span class="text-primary h5">Additional Filters</span>
+
+                <hr>
+                <div class="col-md-12">
+                   <div class="row mt-2">
+                    <div class="col-md-4">
+                        <label class="connection-type-filters">
+                            1st Connection
+                            <input type="checkbox" id="con1">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="connection-type-filters">
+                            2nd Connection
+                            <input type="checkbox" id="con2">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="connection-type-filters" id="con3">
+                            3rd Connection
+                            <input type="checkbox">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                   </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-floating mb-3">
+                        <select id="selected-locations" placeholder="Select locations" multiple>
+                            <option value="105451800">Karachi</option>
+                            <option value="102866583">Islamabad</option>
+                            <option value="104112529">Lahore</option>
+                        </select> 
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-floating mb-3">
+                        <select id="selected-industries" placeholder="Select industries" multiple>
+                            <option value="96">IT Services and IT Consulting</option>
+                            <option value="6">Technology, Information and Media</option>
+                            <option value="4">Software Development</option>
+                        </select> 
+                    </div>
+                </div>
+
+                <div class="container">
+                    <button type="submit" class="btn btn-primary" id="start-profile-scraper">Start Scraper</button>
+                </div>
+              </form>
+              <hr>
+              <div id="profile-scraper-live-status">
+                <h3>Scraper Live Status</h3>
+                <div id="scraper-live-messages">Currently scraper is not running.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+
+<div class="modal fade" id="profiles-by-search-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="profiles-by-search-title">Data from Search</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div style="padding: 10px;" class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr class="text-center">
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">About</th>
+                            <th scope="col">Experience</th>
+                            <th scope="col">Education</th>
+                            <th scope="col">Open to work</th>
+                            <th scope="col">Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="profiles-by-search-result"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js" integrity="sha384-Rx+T1VzGupg4BHQYs2gCW9It+akI2MM/mndMCy36UVfodzcJcF0GGLxZIzObiEfa" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="js/profile_scraper_script.js"></script>
+
+</body>
+</html>
