@@ -55,12 +55,6 @@ public class Profile {
     public Profile (WebDriverHelper driverHelper, String link) {
         this.link = link;
         this.driverHelper = driverHelper;
-        try {
-            driverHelper.getDriver().get(link);
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // TODO: better handle interrupted exception
-        }
     }
 
 
@@ -141,12 +135,7 @@ public class Profile {
     @JsonIgnore
     public String fetchEmail() {
         driverHelper.getDriver().get(fetchProfileLink() + "overlay/contact-info/");
-        try {
-            // TODO: remove fixed sleeping time
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            // TODO: better handle interruptedException
-        }
+
         WebElement emailElement = driverHelper.getElementIfExist(By.xpath("//section[@class='pv-contact-info__contact-type ci-email']/div/a"));
         if (emailElement != null) return this.email = emailElement.getText();
         return this.email = "Unable to get email address.";

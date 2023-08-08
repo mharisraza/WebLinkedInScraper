@@ -19,9 +19,6 @@ $(document).ready(() => {
     document.getElementById("start-profile-scraper").addEventListener("click", (event) => startProfileScraper(event));
     setInterval(getStatus, 200);
 
-    // const searchInput = document.getElementById("search-title-input");
-   
-
 })
 let statusMessages = []
 let searches = new Set();
@@ -106,8 +103,6 @@ const startProfileScraper = (event) => {
     const secondConnection = document.getElementById('con2').checked;
     const thirdConnection = document.getElementById('con3').checked;
 
-    console.log("first connection checked: ", firstConnection)
-
     const locations = document.getElementById("selected-locations").selectedOptions;
     for (let option of locations) {
         selectedLocations.push(option.value);
@@ -151,10 +146,8 @@ const startProfileScraper = (event) => {
 const copyToClipBoard = (id) => {
     const copyBtn = document.getElementById(id);
     const copyText = copyBtn.getAttribute("data-copytext");
-    copyBtn.addEventListener("click", function () {
-        navigator.clipboard.writeText(copyText);
-        alert("Copied successfully!")
-    });
+    navigator.clipboard.writeText(copyText);
+    alert("Copied successfully!")
 }
 
 const getStatus = () => {
@@ -195,15 +188,13 @@ const getStatus = () => {
 }
 
     
-function filterSearches() {
+const filterSearches = () => {
     const enteredKeywords = document.getElementById("search-title-input").value.toLowerCase();
     const tableBody = document.getElementById("profiles-searches-tbody");
-    console.log("entered keywords: ", enteredKeywords)
 
     const searchesSet = Array.from(searches);
     tableBody.innerHTML = '';
 
-    
     searchesSet.forEach((search, index) => {
         title = search.title.toLowerCase();
         if (title.includes(enteredKeywords) || enteredKeywords === "") {

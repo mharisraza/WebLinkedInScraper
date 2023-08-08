@@ -12,7 +12,7 @@ public class PostScraperParameters {
     private String keywords;
     private String title; // associated with @com.sudoware.linkedinscraper.models.Search.title
     private Long totalPostsToFetch;
-    private boolean headlessMode;
+    private Boolean headlessMode;
 
     // additional filters
     private String datePosted;

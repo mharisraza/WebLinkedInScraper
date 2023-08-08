@@ -29,7 +29,6 @@ public class AppController {
 
     @PostMapping(value = "/profile-scraper", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> profileScraper(@RequestBody ProfileScraperParameters profileParameters) {
-        System.out.println("First connection: " + profileParameters.getFilters().getIsFirstConnectionChecked());
         profileService.startScraper(profileParameters);
         return ResponseEntity.ok("Successfully fetched and save profiles to database.");
     }
