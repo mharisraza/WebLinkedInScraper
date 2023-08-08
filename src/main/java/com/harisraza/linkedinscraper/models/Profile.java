@@ -55,6 +55,7 @@ public class Profile {
     public Profile (WebDriverHelper driverHelper, String link) {
         this.link = link;
         this.driverHelper = driverHelper;
+        driverHelper.getDriver().get(link);
     }
 
 
