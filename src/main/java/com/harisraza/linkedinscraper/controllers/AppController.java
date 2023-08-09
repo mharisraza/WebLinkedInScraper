@@ -1,14 +1,14 @@
 package com.harisraza.linkedinscraper.controllers;
 
-import com.harisraza.linkedinscraper.helper.StatusResponse;
 import com.harisraza.linkedinscraper.models.Post;
+import com.harisraza.linkedinscraper.models.Profile;
 import com.harisraza.linkedinscraper.models.Search;
 import com.harisraza.linkedinscraper.services.PostService;
 import com.harisraza.linkedinscraper.services.ProfileService;
-import com.harisraza.linkedinscraper.helper.PostScraperParameters;
-import com.harisraza.linkedinscraper.helper.ProfileScraperParameters;
-import com.harisraza.linkedinscraper.models.Profile;
 import com.harisraza.linkedinscraper.services.SearchService;
+import com.harisraza.linkedinscraper.utils.PostScraperParameters;
+import com.harisraza.linkedinscraper.utils.ProfileScraperParameters;
+import com.harisraza.linkedinscraper.utils.StatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

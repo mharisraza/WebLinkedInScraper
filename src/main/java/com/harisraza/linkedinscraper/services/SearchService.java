@@ -1,8 +1,8 @@
 package com.harisraza.linkedinscraper.services;
 
 import com.harisraza.linkedinscraper.models.Post;
-import com.harisraza.linkedinscraper.models.Search;
 import com.harisraza.linkedinscraper.models.Profile;
+import com.harisraza.linkedinscraper.models.Search;
 
 import java.time.LocalDateTime;
 import java.util.List;

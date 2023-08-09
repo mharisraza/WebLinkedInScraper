@@ -1,4 +1,4 @@
-package com.harisraza.linkedinscraper.helper;
+package com.harisraza.linkedinscraper.utils;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -2,7 +2,7 @@ package com.harisraza.linkedinscraper.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.harisraza.linkedinscraper.helper.WebDriverHelper;
+import com.harisraza.linkedinscraper.utils.WebDriverHelper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -55,7 +55,7 @@ public class Profile {
     public Profile (WebDriverHelper driverHelper, String link) {
         this.link = link;
         this.driverHelper = driverHelper;
-        driverHelper.getDriver().get(link);
+        driverHelper.goToPage(link);
     }
 
 
@@ -111,7 +111,7 @@ public class Profile {
         WebElement experienceElement = driverHelper.getElementIfExist(By.id("experience"));
         if(experienceElement == null) return this.experience = "Unable to get experience";
 
-        this.experience = removeDuplicateLines(experienceElement.findElement(By.xpath("./parent::*")).getText());
+        this.experience = removeDuplicateLines(driverHelper.getRelatedElementIfExist(experienceElement, By.xpath("./parent::*")).getText());
         return this.experience;
     }
 
@@ -123,9 +123,9 @@ public class Profile {
     @JsonIgnore
     public String fetchEducation() {
         WebElement educationElement = driverHelper.getElementIfExist(By.id("education"));
-        if(educationElement == null) return "Unable to get education";
+        if(educationElement == null) return this.education = "Unable to get education";
 
-        this.education = removeDuplicateLines(educationElement.findElement(By.xpath("./parent::*")).getText());
+        this.education = removeDuplicateLines(driverHelper.getRelatedElementIfExist(educationElement, By.xpath("./parent::*")).getText());
         return this.education;
     }
 
@@ -135,8 +135,7 @@ public class Profile {
      */
     @JsonIgnore
     public String fetchEmail() {
-        driverHelper.getDriver().get(fetchProfileLink() + "overlay/contact-info/");
-
+        driverHelper.goToPage(fetchProfileLink() + "overlay/contact-info/");
         WebElement emailElement = driverHelper.getElementIfExist(By.xpath("//section[@class='pv-contact-info__contact-type ci-email']/div/a"));
         if (emailElement != null) return this.email = emailElement.getText();
         return this.email = "Unable to get email address.";
@@ -160,7 +159,7 @@ public class Profile {
      */
     @JsonIgnore
     public String fetchProfileLink() {
-        return driverHelper.getDriver().getCurrentUrl();
+        return driverHelper.getCurrentPageUrl();
     }
 
     /**
