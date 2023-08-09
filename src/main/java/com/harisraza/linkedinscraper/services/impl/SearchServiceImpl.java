@@ -1,9 +1,9 @@
 package com.harisraza.linkedinscraper.services.impl;
 
 import com.harisraza.linkedinscraper.models.Post;
+import com.harisraza.linkedinscraper.models.Profile;
 import com.harisraza.linkedinscraper.models.Search;
 import com.harisraza.linkedinscraper.repositories.SearchRepository;
-import com.harisraza.linkedinscraper.models.Profile;
 import com.harisraza.linkedinscraper.services.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

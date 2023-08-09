@@ -1,29 +1,23 @@
 package com.harisraza.linkedinscraper.services.impl;
 
 import com.harisraza.linkedinscraper.config.ScraperConfig;
-import com.harisraza.linkedinscraper.exceptions.ExpectedPageNotLoadedException;
-import com.harisraza.linkedinscraper.exceptions.HumanVerificationRequiredException;
-import com.harisraza.linkedinscraper.helper.WebDriverHelper;
 import com.harisraza.linkedinscraper.models.Post;
 import com.harisraza.linkedinscraper.models.Search;
 import com.harisraza.linkedinscraper.repositories.PostRepository;
 import com.harisraza.linkedinscraper.services.PostService;
-import com.harisraza.linkedinscraper.helper.PostScraperParameters;
 import com.harisraza.linkedinscraper.services.SearchService;
+import com.harisraza.linkedinscraper.utils.PostScraperParameters;
+import com.harisraza.linkedinscraper.utils.WebDriverHelper;
 import org.bson.types.ObjectId;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Wait;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -33,8 +27,8 @@ import java.util.stream.Collectors;
 @Service
 public class PostServiceImpl implements PostService {
 
-    @Autowired private PostRepository postRepository;
-    @Autowired private SearchService searchService;
+    private final PostRepository postRepository;
+    private final SearchService searchService;
     private WebDriverHelper driverHelper;
 
     private String currentStatus = "";
@@ -42,11 +36,15 @@ public class PostServiceImpl implements PostService {
     private boolean isScraperRunning = false;
     private boolean scrapedSuccess = false;
 
+    @Autowired
+    public PostServiceImpl(PostRepository postRepository, SearchService searchService) {
+        this.postRepository = postRepository;
+        this.searchService = searchService;
+    }
+
     private String getFilters(String datePosted, String sortBy) {
-        StringBuilder filters = new StringBuilder();
-        filters.append(datePosted != null ? "&datePosted=%22" + datePosted + "%22"  : "");
-        filters.append(sortBy != null ? "&sortedBy=%22" + sortBy + "%22" : "");
-        return filters.toString();
+        return (datePosted != null ? "&datePosted=%22" + datePosted + "%22" : "") +
+                (sortBy != null ? "&sortedBy=%22" + sortBy + "%22" : "");
     }
 
     private Set<Post> fetchPosts(PostScraperParameters postParameters) throws InterruptedException {
@@ -63,7 +61,7 @@ public class PostServiceImpl implements PostService {
         if (keywords == null) keywords = "";
 
         while (postsRetrieved < totalPostsToRetrieve || totalPostsToRetrieve == -1) {
-            driverHelper.getDriver().get(String.format("https://www.linkedin.com/search/results/content/?page=%d&keywords=%s%s", pageToGoNext, keywords, filters));
+            driverHelper.goToPage(String.format("https://www.linkedin.com/search/results/content/?page=%d&keywords=%s%s", pageToGoNext, keywords, filters));
 
             WebElement noPageElement = driverHelper.getElementIfExist(By.xpath("//div[@class='search-reusable-search-no-results artdeco-card mb2']"));
             if (noPageElement != null) {
@@ -74,60 +72,29 @@ public class PostServiceImpl implements PostService {
             List<WebElement> postsElements = driverHelper.getElementsIfExists(By.xpath("//div[contains(@class, 'feed-shared-update-v2 feed-shared-update-v2--minimal-padding')]"));
             this.currentStatus = "Extracting required information from each post.. (it might take some times)";
 
-            for (WebElement postElement : postsElements) {
-                Post post = extractPostInformation(postElement, finalKeywords);
-                posts.add(post);
-                postsRetrieved++;
-                if(postsRetrieved == totalPostsToRetrieve && totalPostsToRetrieve != -1) {
-                    break;
+            if(postsElements != null && postsElements.size() > 0) {
+                for (WebElement postElement : postsElements) {
+                    Post post = extractPostInformation(postElement, finalKeywords);
+                    posts.add(post);
+                    postsRetrieved++;
+                    if(postsRetrieved == totalPostsToRetrieve && totalPostsToRetrieve != -1) {
+                        break;
+                    }
                 }
             }
+
             pageToGoNext++;
         }
         return posts;
     }
 
     private Post extractPostInformation(WebElement postElement, String matchedKeywords) {
-        String content = driverHelper.getChildElementIfExist(postElement, By.xpath(".//div[@class='update-components-text relative feed-shared-update-v2__commentary ' and @dir='ltr']/span/span")).getText();
+        String content = driverHelper.getRelatedElementIfExist(postElement, By.xpath(".//div[@class='update-components-text relative feed-shared-update-v2__commentary ' and @dir='ltr']/span/span")).getText();
         String link = String.format("https://www.linkedin.com/feed/update/%s", postElement.getAttribute("data-urn"));
-        String by = driverHelper.getChildElementIfExist(postElement, By.xpath(".//div[contains(@class, 'update-components-actor__meta relative')]/span/span/span[2]")).getText();
+        String by = driverHelper.getRelatedElementIfExist(postElement, By.xpath(".//div[contains(@class, 'update-components-actor__meta relative')]/span/span/span[2]")).getText();
         return new Post(by, content, matchedKeywords, link);
     }
 
-    private boolean loginToLinkedIn(String emailAddress, String password, boolean isHeadlessMode) throws InterruptedException {
-        // going to LinkedIn login page.
-        driverHelper.getDriver().get("https://www.linkedin.com/login");
-
-        // entering details and then clicking on login button to logged in.
-        driverHelper.getDriver().findElement(By.xpath("/html/body/div/main/div[2]/div[1]/form/div[1]/input")).sendKeys(emailAddress);
-        driverHelper.getDriver().findElement(By.xpath("/html/body/div/main/div[2]/div[1]/form/div[2]/input")).sendKeys(password);
-        driverHelper.getDriver().findElement(By.xpath("/html/body/div/main/div[2]/div[1]/form/div[3]/button")).click();
-
-        if(driverHelper.getDriver().getCurrentUrl().contains("checkpoint") && isHeadlessMode) {
-            throw new HumanVerificationRequiredException("Manual human verification required, please run scraper without headless mode and verify the captcha to continue.");
-        } else if (driverHelper.getDriver().getCurrentUrl().contains("checkpoint")) {
-            try {
-                waitUntilExpectedPageLoaded("feed", null);
-            } catch (ExpectedPageNotLoadedException ex) {
-                driverHelper.getDriver().quit();
-            }
-        }
-
-        WebElement wrongCredentialsElement = driverHelper.getElementIfExist(By.id("error-for-password"));
-        return wrongCredentialsElement == null;
-    }
-
-    private void waitUntilExpectedPageLoaded(String expectedUrl, By elementLocator) {
-        Wait<WebDriver> wait = new WebDriverWait(driverHelper.getDriver(), Duration.ofSeconds(30));
-        try {
-            wait.until(ExpectedConditions.urlContains(expectedUrl));
-            if (elementLocator != null) {
-                wait.until(ExpectedConditions.presenceOfElementLocated(elementLocator));
-            }
-        } catch (Exception e) {
-            throw new ExpectedPageNotLoadedException(String.format("Expected page that should contain '%s' not loaded in 30 seconds"));
-        }
-    }
 
     @Override
     public void startScraper(PostScraperParameters postsParameters) {
@@ -140,7 +107,8 @@ public class PostServiceImpl implements PostService {
             this.isScraperRunning = true;
             this.currentStatus = "Scraper started, logging into linkedin account.";
 
-            boolean isLoggedIn = loginToLinkedIn(postsParameters.getEmail(), postsParameters.getPassword(), postsParameters.getHeadlessMode());
+            boolean isLoggedIn = driverHelper.loginToLinkedIn(postsParameters.getEmail(), postsParameters.getPassword(), postsParameters.getHeadlessMode());
+
             if(!isLoggedIn) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong LinkedIn login credentials.");
             }
@@ -150,23 +118,25 @@ public class PostServiceImpl implements PostService {
 
             // save fetched posts to database
             saveToDatabase(posts, postsParameters.getTitle());
+            this.scrapedSuccess = true;
             this.currentStatus = "Successfully saved fetched posts into database. Shutting down scraper";
             this.isScraperRunning = false;
-            this.scrapedSuccess = true;
+
 
         } catch (Exception e) {
-            driverHelper.getDriver().quit();
+            e.printStackTrace();
+            driverHelper.driver().quit();
             setDefaultStatus();
         } finally {
-            driverHelper.getDriver().quit();
+            driverHelper.driver().quit();
             setDefaultStatus();
         }
     }
 
     @Override
     public String getStatus() {
-        if (!isScraperRunning && !scrapedSuccess) return DEFAULT_STATUS;
-        if(scrapedSuccess) scrapedSuccess = false;
+        if (!isScraperRunning && !scrapedSuccess)
+            return DEFAULT_STATUS;
         return currentStatus;
     }
 
@@ -177,7 +147,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public boolean isScrapedSuccess() {
-        return false;
+        return scrapedSuccess;
     }
 
     private void setDefaultStatus() {
@@ -191,7 +161,6 @@ public class PostServiceImpl implements PostService {
     @Transactional
     private void saveToDatabase (Set<Post> posts, String searchTitle) {
         try {
-            this.currentStatus = "Saving fetched posts to database...";
             Search search = new Search();
             search.setSearchedAt(LocalDateTime.now());
             search.setTitle(searchTitle);
